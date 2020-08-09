@@ -39,8 +39,10 @@ class FlutterGooglePlacesWeb extends StatefulWidget {
   ///Multiple countries must be passed as multiple country:XX filters, with the pipe character (|) as a separator.
   ///For example: components=country:us|country:pr|country:vi|country:gu|country:mp would restrict your results to places within the United States and its unincorporated organized territories.
   final String components;
+  final InputDecoration decoration;
+  final bool required;
 
-  FlutterGooglePlacesWeb({Key key, @required this.apiKey, this.proxyURL, this.offset, this.components, this.sessionToken = true});
+  FlutterGooglePlacesWeb({Key key, this.apiKey, this.proxyURL, this.offset, this.components, this.sessionToken = true, this.decoration, this.required});
 
   @override
   FlutterGooglePlacesWebState createState() => FlutterGooglePlacesWebState();
@@ -130,27 +132,37 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
     super.initState();
   }
 
+  final addressFormKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      fit: FlexFit.tight,
-      child: Container(
-        alignment: Alignment.center,
-        child: Stack(
-          children: [
-            //search field
-            TextFormField(
-              key: widget.key,
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: 'Search',
-              ),
-              onChanged: (text) {
-                setState(() {
-                  getLocationResults(text);
-                });
-              },
-            ),
+    return Flex(
+      direction: Axis.vertical,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          fit: FlexFit.loose,
+          child: Container(
+            alignment: Alignment.center,
+            child: Stack(
+              children: [
+                //search field
+                TextFormField(
+                  key: widget.key,
+                  controller: controller,
+                  decoration: widget.decoration,
+                  validator: (value) {
+                    if (widget.required == true && value.isEmpty) {
+                      return 'Please enter an address';
+                    }
+                    return null;
+                  },
+                  onChanged: (text) {
+                    setState(() {
+                      getLocationResults(text);
+                    });
+                  },
+                ),
 //            FlutterGooglePlacesWeb.showResults
 //                ? Container(
 //                    width: MediaQuery.of(context).size.width,
@@ -164,41 +176,43 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
 //                    ),
 //                  )
 //                : Container(),
-            FlutterGooglePlacesWeb.showResults
-                ? Padding(
-                    padding: EdgeInsets.only(top: 50),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            fit: FlexFit.loose,
-                            child: ListView(
-                              shrinkWrap: true,
-                              children: displayedResults.map((Address addressData) => SearchResultsTile(addressData: addressData, callback: selectResult, address: FlutterGooglePlacesWeb.value)).toList(),
-                            ),
+                FlutterGooglePlacesWeb.showResults
+                    ? Padding(
+                        padding: EdgeInsets.only(top: 50),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                fit: FlexFit.loose,
+                                child: ListView(
+                                  shrinkWrap: true,
+                                  children: displayedResults.map((Address addressData) => SearchResultsTile(addressData: addressData, callback: selectResult, address: FlutterGooglePlacesWeb.value)).toList(),
+                                ),
+                              ),
+                              Container(
+                                height: 30,
+                                child: Image.asset(
+                                  'packages/flutter_google_places/assets/google_white.png',
+                                  scale: 3,
+                                ),
+                              ),
+                            ],
                           ),
-                          Container(
-                            height: 30,
-                            child: Image.asset(
-                              'packages/flutter_google_places/assets/google_white.png',
-                              scale: 3,
-                            ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey[200], width: 0.5),
                           ),
-                        ],
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[200], width: 0.5),
-                      ),
-                    ),
-                  )
-                : Container(),
-          ],
+                        ),
+                      )
+                    : Container(),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 

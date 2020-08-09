@@ -1,3 +1,9 @@
+## [0.0.9] - Fixed form validation
+
+## [0.0.8] - Fixed flex error when padding applied to FlutterGooglePlacesWeb
+
+## [0.0.6] - Added validation and decoration
+
 ## [0.0.5] - Added example
 
 * Added example
