@@ -1,4 +1,8 @@
-## [0.0.9] - Fixed form validation
+## [0.1] - Stable Version
+
+* Show Progress Loader to inform user that background task is occuring
+
+## [0.0.10] - Fixed form validation
 
 ## [0.0.8] - Fixed flex error when padding applied to FlutterGooglePlacesWeb
 

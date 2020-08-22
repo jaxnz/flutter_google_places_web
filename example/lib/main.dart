@@ -23,6 +23,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String test = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,9 +49,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   print(FlutterGooglePlacesWeb.value['streetAddress']); // '1600 Amphitheatre Parkway'
                   print(FlutterGooglePlacesWeb.value['city']); // 'CA'
                   print(FlutterGooglePlacesWeb.value['country']);
+                  setState(() {
+                    test = FlutterGooglePlacesWeb.value['name'] ?? '';
+                  });
                 },
                 child: Text('Press to test'),
-              )
+              ),
+              Text(test),
             ],
           ),
         ),

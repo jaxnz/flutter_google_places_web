@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/animation.dart';
 import 'package:dio/dio.dart';
+import 'package:rainbow_color/rainbow_color.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_google_places_web/src/search_results_tile.dart';
 
@@ -42,14 +44,25 @@ class FlutterGooglePlacesWeb extends StatefulWidget {
   final InputDecoration decoration;
   final bool required;
 
-  FlutterGooglePlacesWeb({Key key, this.apiKey, this.proxyURL, this.offset, this.components, this.sessionToken = true, this.decoration, this.required});
+  FlutterGooglePlacesWeb(
+      {Key key,
+      this.apiKey,
+      this.proxyURL,
+      this.offset,
+      this.components,
+      this.sessionToken = true,
+      this.decoration,
+      this.required});
 
   @override
   FlutterGooglePlacesWebState createState() => FlutterGooglePlacesWebState();
 }
 
-class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
+class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
+    with SingleTickerProviderStateMixin {
   final controller = TextEditingController();
+  AnimationController _animationController;
+  Animation<Color> _loadingTween;
   List<Address> displayedResults = [];
   String proxiedURL;
   String offsetURL;
@@ -68,14 +81,22 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
       setState(() {
         FlutterGooglePlacesWeb.showResults = false;
       });
+    } else {
+      setState(() {
+        FlutterGooglePlacesWeb.showResults = true;
+      });
     }
-    String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+
+    String baseURL =
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     String type = 'address';
     String input = Uri.encodeComponent(inputText);
     if (widget.proxyURL == null) {
-      proxiedURL = '$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
+      proxiedURL =
+          '$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
     } else {
-      proxiedURL = '${widget.proxyURL}$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
+      proxiedURL =
+          '${widget.proxyURL}$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
     }
     if (widget.offset == null) {
       offsetURL = proxiedURL;
@@ -95,7 +116,8 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
 
     for (var i = 0; i < predictions.length; i++) {
       String name = predictions[i]['description'];
-      String streetAddress = predictions[i]['structured_formatting']['main_text'];
+      String streetAddress =
+          predictions[i]['structured_formatting']['main_text'];
       List<dynamic> terms = predictions[i]['terms'];
       String city = terms[terms.length - 2]['value'];
       String country = terms[terms.length - 1]['value'];
@@ -106,11 +128,6 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
         country: country,
       ));
     }
-    if (displayedResults.isNotEmpty) {
-      setState(() {
-        FlutterGooglePlacesWeb.showResults = true;
-      });
-    }
 
     return displayedResults;
   }
@@ -120,7 +137,8 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
       FlutterGooglePlacesWeb.showResults = false;
       controller.text = clickedAddress.name;
       FlutterGooglePlacesWeb.value['name'] = clickedAddress.name;
-      FlutterGooglePlacesWeb.value['streetAddress'] = clickedAddress.streetAddress;
+      FlutterGooglePlacesWeb.value['streetAddress'] =
+          clickedAddress.streetAddress;
       FlutterGooglePlacesWeb.value['city'] = clickedAddress.city;
       FlutterGooglePlacesWeb.value['country'] = clickedAddress.country;
     });
@@ -129,6 +147,20 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
   @override
   void initState() {
     FlutterGooglePlacesWeb.value = {};
+    _animationController =
+        AnimationController(duration: Duration(seconds: 3), vsync: this);
+    _loadingTween = RainbowColorTween([
+      //Google Colors
+      Color(0xFF4285F4), //Google Blue
+      Color(0xFF0F9D58), //Google Green
+      Color(0xFFF4B400), //Google Tellow
+      Color(0xFFDB4437), //Google Red
+    ]).animate(_animationController)
+      ..addListener(() {
+        setState(() {});
+      });
+    _animationController.forward();
+    _animationController.repeat();
     super.initState();
   }
 
@@ -163,19 +195,6 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
                     });
                   },
                 ),
-//            FlutterGooglePlacesWeb.showResults
-//                ? Container(
-//                    width: MediaQuery.of(context).size.width,
-//                    height: 271,
-//                    child: GestureDetector(
-//                      onTap: () {
-//                        setState(() {
-//                          FlutterGooglePlacesWeb.showResults = false;
-//                        });
-//                      },
-//                    ),
-//                  )
-//                : Container(),
                 FlutterGooglePlacesWeb.showResults
                     ? Padding(
                         padding: EdgeInsets.only(top: 50),
@@ -187,10 +206,27 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
                             children: [
                               Flexible(
                                 fit: FlexFit.loose,
-                                child: ListView(
-                                  shrinkWrap: true,
-                                  children: displayedResults.map((Address addressData) => SearchResultsTile(addressData: addressData, callback: selectResult, address: FlutterGooglePlacesWeb.value)).toList(),
-                                ),
+                                child: displayedResults.isEmpty
+                                    ? Container(
+                                        padding: EdgeInsets.only(
+                                            top: 102, bottom: 102),
+                                        child: CircularProgressIndicator(
+                                          valueColor: _loadingTween,
+                                          strokeWidth: 6.0,
+                                        ),
+                                      )
+                                    : ListView(
+                                        shrinkWrap: true,
+                                        children: displayedResults
+                                            .map((Address addressData) =>
+                                                SearchResultsTile(
+                                                    addressData: addressData,
+                                                    callback: selectResult,
+                                                    address:
+                                                        FlutterGooglePlacesWeb
+                                                            .value))
+                                            .toList(),
+                                      ),
                               ),
                               Container(
                                 height: 30,
@@ -203,7 +239,8 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            border: Border.all(color: Colors.grey[200], width: 0.5),
+                            border:
+                                Border.all(color: Colors.grey[200], width: 0.5),
                           ),
                         ),
                       )
