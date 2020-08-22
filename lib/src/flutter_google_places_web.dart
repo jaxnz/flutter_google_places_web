@@ -256,6 +256,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
   @override
   void dispose() {
     controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 }

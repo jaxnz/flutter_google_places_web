@@ -1,3 +1,5 @@
+## [0.1.1] - Fixed Memory Leak on Loading Animation 
+
 ## [0.1.0] - Stable Version
 
 * Show Progress Loader to inform user that background task is occuring
