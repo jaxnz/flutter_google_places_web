@@ -1,6 +1,7 @@
-## [0.1] - Stable Version
+## [0.1.0] - Stable Version
 
 * Show Progress Loader to inform user that background task is occuring
+* Updated ReadMe with gif
 
 ## [0.0.10] - Fixed form validation
 
