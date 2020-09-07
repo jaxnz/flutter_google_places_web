@@ -43,16 +43,18 @@ class FlutterGooglePlacesWeb extends StatefulWidget {
   final String components;
   final InputDecoration decoration;
   final bool required;
+  final ValueChanged<Address> onSelected;
 
   FlutterGooglePlacesWeb(
       {Key key,
-      this.apiKey,
-      this.proxyURL,
-      this.offset,
-      this.components,
-      this.sessionToken = true,
-      this.decoration,
-      this.required});
+        this.apiKey,
+        this.proxyURL,
+        this.offset,
+        this.components,
+        this.sessionToken = true,
+        this.decoration,
+        this.required, this.onSelected,
+      });
 
   @override
   FlutterGooglePlacesWebState createState() => FlutterGooglePlacesWebState();
@@ -69,6 +71,9 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
   String componentsURL;
   String _sessionToken;
   var uuid = Uuid();
+
+  //
+  var errorMessage = "";
 
   Future<List<Address>> getLocationResults(String inputText) async {
     if (_sessionToken == null && widget.sessionToken == true) {
@@ -93,10 +98,10 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
     String input = Uri.encodeComponent(inputText);
     if (widget.proxyURL == null) {
       proxiedURL =
-          '$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
+      '$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
     } else {
       proxiedURL =
-          '${widget.proxyURL}$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
+      '${widget.proxyURL}$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
     }
     if (widget.offset == null) {
       offsetURL = proxiedURL;
@@ -109,7 +114,22 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
       componentsURL = offsetURL + '&components=${widget.components}';
     }
     Response response = await Dio().get(componentsURL);
+
+    print("\n ...Response... \n");
+    print(response);
+
+    // Check for error
+    if (response.data["status"] == "REQUEST_DENIED") {
+      errorMessage = response.data["error_message"];
+    } else {
+      errorMessage = "";
+    }
+
     var predictions = response.data['predictions'];
+
+    print("\n ...Prediction... \n");
+    print(predictions);
+
     if (predictions != []) {
       displayedResults.clear();
     }
@@ -117,21 +137,29 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
     for (var i = 0; i < predictions.length; i++) {
       String name = predictions[i]['description'];
       String streetAddress =
-          predictions[i]['structured_formatting']['main_text'];
+      predictions[i]['structured_formatting']['main_text'];
       List<dynamic> terms = predictions[i]['terms'];
       String city = terms[terms.length - 2]['value'];
       String country = terms[terms.length - 1]['value'];
+
+      String placeId = predictions[i]["place_id"];
+      String reference = predictions[i]["reference"];
+
+      // terms[terms.length - ]
       displayedResults.add(Address(
         name: name,
         streetAddress: streetAddress,
         city: city,
         country: country,
+        placeId: placeId,
+        reference: reference,
       ));
     }
 
     return displayedResults;
   }
 
+  // Callback on
   selectResult(Address clickedAddress) {
     setState(() {
       FlutterGooglePlacesWeb.showResults = false;
@@ -141,7 +169,9 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
           clickedAddress.streetAddress;
       FlutterGooglePlacesWeb.value['city'] = clickedAddress.city;
       FlutterGooglePlacesWeb.value['country'] = clickedAddress.country;
+      FlutterGooglePlacesWeb.value['placeId'] = clickedAddress.placeId;
     });
+    if (widget.onSelected != null) widget.onSelected(clickedAddress);
   }
 
   @override
@@ -190,60 +220,64 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
                     return null;
                   },
                   onChanged: (text) {
-                    setState(() {
-                      getLocationResults(text);
-                    });
+
+                    // Throttle this down
+                    if (text.length > 2) {
+                      setState(() {
+                        getLocationResults(text);
+                      });
+                    }
+
                   },
                 ),
                 FlutterGooglePlacesWeb.showResults
                     ? Padding(
-                        padding: EdgeInsets.only(top: 50),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                fit: FlexFit.loose,
-                                child: displayedResults.isEmpty
-                                    ? Container(
-                                        padding: EdgeInsets.only(
-                                            top: 102, bottom: 102),
-                                        child: CircularProgressIndicator(
-                                          valueColor: _loadingTween,
-                                          strokeWidth: 6.0,
-                                        ),
-                                      )
-                                    : ListView(
-                                        shrinkWrap: true,
-                                        children: displayedResults
-                                            .map((Address addressData) =>
-                                                SearchResultsTile(
-                                                    addressData: addressData,
-                                                    callback: selectResult,
-                                                    address:
-                                                        FlutterGooglePlacesWeb
-                                                            .value))
-                                            .toList(),
-                                      ),
-                              ),
-                              Container(
-                                height: 30,
-                                child: Image.asset(
-                                  'packages/flutter_google_places/assets/google_white.png',
-                                  scale: 3,
-                                ),
-                              ),
-                            ],
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(color: Colors.grey[200], width: 0.5),
+                  padding: EdgeInsets.only(top: 50),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: displayedResults.isEmpty
+                              ? Container(
+                            padding: EdgeInsets.only(
+                                top: 102, bottom: 102),
+                            child: errorMessage.isEmpty ? CircularProgressIndicator(
+                              valueColor: _loadingTween,
+                              strokeWidth: 6.0,
+                            ) : Text(errorMessage, style: TextStyle(color: Colors.red,),),
+                          )
+                              : ListView(
+                            shrinkWrap: true,
+                            children: displayedResults
+                                .map((Address addressData) =>
+                                SearchResultsTile(
+                                    addressData: addressData,
+                                    callback: selectResult,
+                                    address:
+                                    FlutterGooglePlacesWeb
+                                        .value))
+                                .toList(),
                           ),
                         ),
-                      )
+                        /*Container(
+                                height: 30,
+                                child: Image.asset('assets/google_white.png',
+                                  scale: 3,
+                                ),
+                              ),*/
+                      ],
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border:
+                      Border.all(color: Colors.grey[200], width: 0.5),
+                    ),
+                  ),
+                )
                     : Container(),
               ],
             ),
@@ -262,9 +296,11 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
 }
 
 class Address {
+  String placeId;
+  String reference;
   String name;
   String streetAddress;
   String city;
   String country;
-  Address({this.name, this.streetAddress, this.city, this.country});
+  Address({this.name, this.placeId, this.reference, this.streetAddress, this.city, this.country});
 }
