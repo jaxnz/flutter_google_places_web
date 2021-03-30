@@ -29,6 +29,8 @@ components: 'country:us',
 
 If you have XMLHttpRequest errors, please use a proxy. For more information please see [cors-anywhere](https://cors-anywhere.herokuapp.com/)
 
+**If you are using the demo CORS Anywhere proxy (included in the example) - please allow temporary access or use your own proxy**
+
 If a user types and selects 1600 Amphitheatre Parkway you can retrieve the data
 
 ```dart
@@ -42,3 +44,8 @@ print(streetAddress); // '1600 Amphitheatre Parkway'
 print(city); // 'CA'
 print(country); // 'USA'
 ```
+
+## Roadmap
+
+- Null Safety
+- Increase Performance

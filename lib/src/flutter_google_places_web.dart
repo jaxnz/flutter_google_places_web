@@ -108,6 +108,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
     } else {
       componentsURL = offsetURL + '&components=${widget.components}';
     }
+    print(componentsURL);
     Response response = await Dio().get(componentsURL);
     var predictions = response.data['predictions'];
     if (predictions != []) {

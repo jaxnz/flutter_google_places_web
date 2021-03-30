@@ -43,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 apiKey: kGoogleApiKey,
                 proxyURL: 'https://cors-anywhere.herokuapp.com/',
               ),
-              FlatButton(
+              TextButton(
                 onPressed: () {
                   print(FlutterGooglePlacesWeb.value['name']); // '1600 Amphitheatre Parkway, Mountain View, CA, USA'
                   print(FlutterGooglePlacesWeb.value['streetAddress']); // '1600 Amphitheatre Parkway'
