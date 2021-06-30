@@ -1,3 +1,9 @@
+# CHANGELOG
+
+## [1.0.0] - Upgraded to Null Safety
+
+* Fixed image asset not loading
+
 ## [0.1.2] - Updated Dependencies
 
 ## [0.1.1] - Fixed Memory Leak on Loading Animation

@@ -6,7 +6,10 @@ class SearchResultsTile extends StatelessWidget {
   final Address addressData;
   final Function(Address) callback;
   final Map<String, String> address;
-  SearchResultsTile({this.addressData, this.callback, this.address});
+  SearchResultsTile({
+    required this.addressData, 
+    required this.callback, 
+    required this.address});
   @override
   Widget build(BuildContext context) {
     return ListTile(

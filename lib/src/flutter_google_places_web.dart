@@ -11,7 +11,7 @@ class FlutterGooglePlacesWeb extends StatefulWidget {
   ///FlutterGooglePlacesWeb.value['streetAddress'] = '1600 Amphitheatre Parkway';
   ///FlutterGooglePlacesWeb.value['city'] = 'CA';
   ///FlutterGooglePlacesWeb.value['country'] = 'USA';
-  static Map<String, String> value;
+  static late Map<String, String> value;
 
   ///[showResults] boolean shows results container
   static bool showResults = false;
@@ -21,14 +21,14 @@ class FlutterGooglePlacesWeb extends StatefulWidget {
   final String apiKey;
 
   ///Proxy to be used if having CORS XMLError or want to use for security
-  final String proxyURL;
+  final String? proxyURL;
 
   ///The position, in the input term, of the last character that the service uses to match predictions.
   ///For example, if the input is 'Google' and the [offset] is 3, the service will match on 'Goo'.
   ///The string determined by the [offset] is matched against the first word in the input term only.
   ///For example, if the input term is 'Google abc' and the [offset] is 3, the service will attempt to match against 'Goo abc'.
   ///If no [offset] is supplied, the service will use the whole term. The [offset] should generally be set to the position of the text caret.
-  final int offset;
+  final int? offset;
 
   ///[sessionToken] is a boolean that enable/disables a UUID v4 session token. [sessionToken] is [true] by default.
   ///Google recommends using session tokens for all autocomplete sessions
@@ -40,19 +40,19 @@ class FlutterGooglePlacesWeb extends StatefulWidget {
   ///For example: components=country:fr would restrict your results to places within France.
   ///Multiple countries must be passed as multiple country:XX filters, with the pipe character (|) as a separator.
   ///For example: components=country:us|country:pr|country:vi|country:gu|country:mp would restrict your results to places within the United States and its unincorporated organized territories.
-  final String components;
-  final InputDecoration decoration;
+  final String? components;
+  final InputDecoration? decoration;
   final bool required;
 
   FlutterGooglePlacesWeb(
-      {Key key,
-      this.apiKey,
+      {Key? key,
+      required this.apiKey,
       this.proxyURL,
       this.offset,
       this.components,
       this.sessionToken = true,
       this.decoration,
-      this.required});
+      required this.required});
 
   @override
   FlutterGooglePlacesWebState createState() => FlutterGooglePlacesWebState();
@@ -61,13 +61,13 @@ class FlutterGooglePlacesWeb extends StatefulWidget {
 class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
     with SingleTickerProviderStateMixin {
   final controller = TextEditingController();
-  AnimationController _animationController;
-  Animation<Color> _loadingTween;
+  late AnimationController _animationController;
+  late Animation<Color> _loadingTween;
   List<Address> displayedResults = [];
-  String proxiedURL;
-  String offsetURL;
-  String componentsURL;
-  String _sessionToken;
+  String proxiedURL = '';
+  String offsetURL = '';
+  String componentsURL = '';
+  String? _sessionToken;
   var uuid = Uuid();
 
   Future<List<Address>> getLocationResults(String inputText) async {
@@ -87,8 +87,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
       });
     }
 
-    String baseURL =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+    String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     String type = 'address';
     String input = Uri.encodeComponent(inputText);
     if (widget.proxyURL == null) {
@@ -185,7 +184,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
                   controller: controller,
                   decoration: widget.decoration,
                   validator: (value) {
-                    if (widget.required == true && value.isEmpty) {
+                    if (widget.required == true && value!.isEmpty) {
                       return 'Please enter an address';
                     }
                     return null;
@@ -232,7 +231,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
                               Container(
                                 height: 30,
                                 child: Image.asset(
-                                  'packages/flutter_google_places/assets/google_white.png',
+                                  'packages/flutter_google_places_web/assets/google_white.png',
                                   scale: 3,
                                 ),
                               ),
@@ -241,7 +240,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border:
-                                Border.all(color: Colors.grey[200], width: 0.5),
+                                Border.all(color: Colors.grey[200]!, width: 0.5),
                           ),
                         ),
                       )
@@ -267,5 +266,9 @@ class Address {
   String streetAddress;
   String city;
   String country;
-  Address({this.name, this.streetAddress, this.city, this.country});
+  Address({
+    required this.name, 
+    required this.streetAddress, 
+    required this.city, 
+    required this.country});
 }

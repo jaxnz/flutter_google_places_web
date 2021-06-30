@@ -42,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
               FlutterGooglePlacesWeb(
                 apiKey: kGoogleApiKey,
                 proxyURL: 'https://cors-anywhere.herokuapp.com/',
+                required: true,
               ),
               TextButton(
                 onPressed: () {

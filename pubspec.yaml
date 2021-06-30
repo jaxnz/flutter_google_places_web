@@ -1,17 +1,17 @@
 name: flutter_google_places_web
-description: A web designed form field for Google Places Autocomplete. For mobile use https://github.com/fluttercommunity/flutter_google_places
-version: 0.1.2
+description: A web designed inline form field for Google Places Autocomplete. For mobile use https://github.com/fluttercommunity/flutter_google_places
+version: 1.0.0
 homepage: https://github.com/jaxnz/flutter_google_places_web
 
 environment:
-  sdk: ">=2.8.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   dio: ^4.0.0
   uuid: ^3.0.3
-  rainbow_color: ^0.1.1
+  rainbow_color: ^2.0.1
 
 dev_dependencies:
   flutter_test:
