@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
-import 'package:dio/dio.dart';
+
 import 'package:rainbow_color/rainbow_color.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_google_places_web/src/search_results_tile.dart';
 
 class FlutterGooglePlacesWeb extends StatefulWidget {
@@ -87,7 +90,8 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
       });
     }
 
-    String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+    String baseURL =
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     String type = 'address';
     String input = Uri.encodeComponent(inputText);
     if (widget.proxyURL == null) {
@@ -108,8 +112,15 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
       componentsURL = offsetURL + '&components=${widget.components}';
     }
     print(componentsURL);
-    Response response = await Dio().get(componentsURL);
-    var predictions = response.data['predictions'];
+    final Map<String, dynamic> response =
+        await http.get(Uri.parse('$componentsURL'), headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Methods': 'GET,POST,HEAD'
+    }).then((value) => jsonDecode(value.body);
+    );
+    // print(response);
+    var predictions = response['predictions'];
     if (predictions != []) {
       displayedResults.clear();
     }
@@ -239,8 +250,8 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            border:
-                                Border.all(color: Colors.grey[200]!, width: 0.5),
+                            border: Border.all(
+                                color: Colors.grey[200]!, width: 0.5),
                           ),
                         ),
                       )
@@ -266,9 +277,9 @@ class Address {
   String streetAddress;
   String city;
   String country;
-  Address({
-    required this.name, 
-    required this.streetAddress, 
-    required this.city, 
-    required this.country});
+  Address(
+      {required this.name,
+      required this.streetAddress,
+      required this.city,
+      required this.country});
 }
