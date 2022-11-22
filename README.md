@@ -47,5 +47,4 @@ print(country); // 'USA'
 
 ## Roadmap
 
-- Null Safety
-- Increase Performance
+- [Coming soon] Add mutliplatform support and remove CORS issues by having javascript API rather than http requests

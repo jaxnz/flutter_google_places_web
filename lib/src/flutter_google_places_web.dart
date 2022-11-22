@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/animation.dart';
 
 import 'package:rainbow_color/rainbow_color.dart';
 import 'package:uuid/uuid.dart';
@@ -47,22 +46,13 @@ class FlutterGooglePlacesWeb extends StatefulWidget {
   final InputDecoration? decoration;
   final bool required;
 
-  FlutterGooglePlacesWeb(
-      {Key? key,
-      required this.apiKey,
-      this.proxyURL,
-      this.offset,
-      this.components,
-      this.sessionToken = true,
-      this.decoration,
-      required this.required});
+  FlutterGooglePlacesWeb({Key? key, required this.apiKey, this.proxyURL, this.offset, this.components, this.sessionToken = true, this.decoration, required this.required});
 
   @override
   FlutterGooglePlacesWebState createState() => FlutterGooglePlacesWebState();
 }
 
-class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
-    with SingleTickerProviderStateMixin {
+class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> with SingleTickerProviderStateMixin {
   final controller = TextEditingController();
   late AnimationController _animationController;
   late Animation<Color> _loadingTween;
@@ -90,16 +80,13 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
       });
     }
 
-    String baseURL =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+    String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     String type = 'address';
     String input = Uri.encodeComponent(inputText);
     if (widget.proxyURL == null) {
-      proxiedURL =
-          '$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
+      proxiedURL = '$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
     } else {
-      proxiedURL =
-          '${widget.proxyURL}$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
+      proxiedURL = '${widget.proxyURL}$baseURL?input=$input&key=${widget.apiKey}&type=$type&sessiontoken=$_sessionToken';
     }
     if (widget.offset == null) {
       offsetURL = proxiedURL;
@@ -112,13 +99,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
       componentsURL = offsetURL + '&components=${widget.components}';
     }
     print(componentsURL);
-    final Map<String, dynamic> response =
-        await http.get(Uri.parse('$componentsURL'), headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': 'true',
-      'Access-Control-Allow-Methods': 'GET,POST,HEAD'
-    }).then((value) => jsonDecode(value.body);
-    );
+    final Map<String, dynamic> response = await http.get(Uri.parse('$componentsURL'), headers: {'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET,POST,HEAD'}).then((value) => jsonDecode(value.body));
     // print(response);
     var predictions = response['predictions'];
     if (predictions != []) {
@@ -127,8 +108,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
 
     for (var i = 0; i < predictions.length; i++) {
       String name = predictions[i]['description'];
-      String streetAddress =
-          predictions[i]['structured_formatting']['main_text'];
+      String streetAddress = predictions[i]['structured_formatting']['main_text'];
       List<dynamic> terms = predictions[i]['terms'];
       String city = terms[terms.length - 2]['value'];
       String country = terms[terms.length - 1]['value'];
@@ -148,8 +128,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
       FlutterGooglePlacesWeb.showResults = false;
       controller.text = clickedAddress.name;
       FlutterGooglePlacesWeb.value['name'] = clickedAddress.name;
-      FlutterGooglePlacesWeb.value['streetAddress'] =
-          clickedAddress.streetAddress;
+      FlutterGooglePlacesWeb.value['streetAddress'] = clickedAddress.streetAddress;
       FlutterGooglePlacesWeb.value['city'] = clickedAddress.city;
       FlutterGooglePlacesWeb.value['country'] = clickedAddress.country;
     });
@@ -158,8 +137,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
   @override
   void initState() {
     FlutterGooglePlacesWeb.value = {};
-    _animationController =
-        AnimationController(duration: Duration(seconds: 3), vsync: this);
+    _animationController = AnimationController(duration: Duration(seconds: 3), vsync: this);
     _loadingTween = RainbowColorTween([
       //Google Colors
       Color(0xFF4285F4), //Google Blue
@@ -219,8 +197,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
                                 fit: FlexFit.loose,
                                 child: displayedResults.isEmpty
                                     ? Container(
-                                        padding: EdgeInsets.only(
-                                            top: 102, bottom: 102),
+                                        padding: EdgeInsets.only(top: 102, bottom: 102),
                                         child: CircularProgressIndicator(
                                           valueColor: _loadingTween,
                                           strokeWidth: 6.0,
@@ -228,15 +205,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
                                       )
                                     : ListView(
                                         shrinkWrap: true,
-                                        children: displayedResults
-                                            .map((Address addressData) =>
-                                                SearchResultsTile(
-                                                    addressData: addressData,
-                                                    callback: selectResult,
-                                                    address:
-                                                        FlutterGooglePlacesWeb
-                                                            .value))
-                                            .toList(),
+                                        children: displayedResults.map((Address addressData) => SearchResultsTile(addressData: addressData, callback: selectResult, address: FlutterGooglePlacesWeb.value)).toList(),
                                       ),
                               ),
                               Container(
@@ -250,8 +219,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb>
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            border: Border.all(
-                                color: Colors.grey[200]!, width: 0.5),
+                            border: Border.all(color: Colors.grey[200]!, width: 0.5),
                           ),
                         ),
                       )
@@ -277,9 +245,5 @@ class Address {
   String streetAddress;
   String city;
   String country;
-  Address(
-      {required this.name,
-      required this.streetAddress,
-      required this.city,
-      required this.country});
+  Address({required this.name, required this.streetAddress, required this.city, required this.country});
 }

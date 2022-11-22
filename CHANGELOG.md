@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## [1.0.1] - Removed dio dependancy
+
 ## [1.0.0] - Upgraded to Null Safety
 
 * Fixed image asset not loading
