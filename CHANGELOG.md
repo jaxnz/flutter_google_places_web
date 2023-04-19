@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## [1.0.2] - Added the ability to use a TextEditingController
+
 ## [1.0.1] - Removed dio dependancy
 
 ## [1.0.0] - Upgraded to Null Safety

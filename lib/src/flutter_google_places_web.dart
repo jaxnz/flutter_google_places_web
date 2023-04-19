@@ -45,15 +45,27 @@ class FlutterGooglePlacesWeb extends StatefulWidget {
   final String? components;
   final InputDecoration? decoration;
   final bool required;
+  
+  final TextEditingController? controller;
 
-  FlutterGooglePlacesWeb({Key? key, required this.apiKey, this.proxyURL, this.offset, this.components, this.sessionToken = true, this.decoration, required this.required});
+  FlutterGooglePlacesWeb({
+    Key? key,
+    required this.apiKey,
+    this.proxyURL,
+    this.offset,
+    this.components,
+    this.sessionToken = true,
+    this.decoration,
+    required this.required,
+    this.controller,
+  });
 
   @override
   FlutterGooglePlacesWebState createState() => FlutterGooglePlacesWebState();
 }
 
 class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> with SingleTickerProviderStateMixin {
-  final controller = TextEditingController();
+  late TextEditingController controller;
   late AnimationController _animationController;
   late Animation<Color> _loadingTween;
   List<Address> displayedResults = [];
@@ -137,6 +149,7 @@ class FlutterGooglePlacesWebState extends State<FlutterGooglePlacesWeb> with Sin
   @override
   void initState() {
     FlutterGooglePlacesWeb.value = {};
+    controller = widget.controller ?? TextEditingController();
     _animationController = AnimationController(duration: Duration(seconds: 3), vsync: this);
     _loadingTween = RainbowColorTween([
       //Google Colors
