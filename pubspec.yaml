@@ -4,7 +4,7 @@ version: 1.0.2
 homepage: https://github.com/jaxnz/flutter_google_places_web
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+   sdk: ">=3.0.0 <4.0.0"
 
 #Currently only supports web
 platforms:
@@ -16,8 +16,8 @@ funding:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.4
-  uuid: ^3.0.7
+  http: ^1.4.0
+  uuid: ^4.5.1
   rainbow_color: ^2.0.1
 
 dev_dependencies:
